@@ -7,6 +7,15 @@ function getAllLandings() {
     leadCount: 0
   }))
 }
+function getLeadsSummary() {
+  return db.landings.map(landing => ({
+    id: landing.id,
+    name: landing.name,
+    client: landing.client,
+    status: landing.status,
+    leadCount: db.leads.filter(lead => lead.landingId === landing.id).length
+  }))
+}
 
 function getLandingById(id) {
   const landing = db.landings.find(l => l.id === Number(id))
@@ -73,4 +82,4 @@ function createLead(landingId, data) {
   return lead
 }
 
-module.exports = { getAllLandings, getLandingById, createLanding, getLandingPreview, getLeadsByLanding, createLead }
+module.exports = { getAllLandings, getLandingById, createLanding, getLandingPreview, getLeadsByLanding, createLead,getLeadsSummary }

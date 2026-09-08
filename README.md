@@ -160,3 +160,43 @@ templates/              Ejemplos HTML renderizados de cada template
 **Con cuenta de GitHub:** hacer un fork del repositorio y clonar tu fork para trabajar en tu propia copia. No realizar commits directamente sobre la rama principal del repositorio original.
 
 **Sin cuenta de GitHub:** descargar el proyecto como ZIP desde el botón "Code → Download ZIP" del repositorio y extraerlo localmente.
+
+
+
+se resolvió el error del Dashboard:
+Error al conectar con las APIs: Landing CRM: 404
+El problema era que el frontend genius-dashboard llamaba a este endpoint:
+GET http://localhost:3000/api/landings/summary
+a través del proxy de Vite:
+/api/crm/landings/summary
+pero el backend genius-crm no tenía implementada esa ruta. Por eso el Dashboard recibía 404.
+se completo el contrato esperado entre frontend y backend.
+En el backend:
+C:\suenosimple\genius-crm
+agregue una función de resumen en:
+C:\suenosimple\genius-crm\src\services\landingService.js
+Esa función calcula, para cada landing, cuántos leads tiene asociados usando la colección db.leads. El resultado devuelve datos resumidos por landing, incluyendo algo como:
+{
+  id,
+  name,
+  client,
+  status,
+  leadCount
+}
+También exporte esa nueva función desde landingService.js, para que pueda ser usada por las rutas.
+Después agregaste el endpoint en:
+C:\suenosimple\genius-crm\src\routes\landings.js
+con una ruta como:
+router.get('/summary', (req, res, next) => {
+  try {
+    res.json(landingService.getLeadsSummary())
+  } catch (err) {
+    next(err)
+  }
+})
+La coloque antes de:
+router.get('/:id', ...)
+Esto es importante porque Express evalúa las rutas en orden. Si /summary quedaba debajo de /:id, Express iba a interpretar "summary" como si fuera un ID de landing, y el error 404 habría seguido apareciendo.
+Con esa modificación, cuando el Dashboard carga y ejecuta getLeadsSummary(), el backend ya responde correctamente con 200 y un JSON válido. Por eso desapareció el error y el panel pudo cargar los datos del Landing CRM.
+
+
