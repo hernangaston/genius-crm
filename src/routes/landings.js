@@ -3,6 +3,7 @@ const router = express.Router()
 const landingService = require('../services/landingService')
 const validateLead = require('../middleware/validateLead')
 
+
 /**
  * @swagger
  * /api/landings:
@@ -53,6 +54,14 @@ router.get('/', (req, res, next) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
+router.get('/summary', (req, res, next) => {
+  try {
+    res.json(landingService.getLeadsSummary())
+  } catch (err) {
+    next(err)
+  }
+})
+
 router.get('/:id', (req, res, next) => {
   try {
     res.json(landingService.getLandingById(req.params.id))
