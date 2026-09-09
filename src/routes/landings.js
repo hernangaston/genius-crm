@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const landingService = require('../services/landingService')
+const validateLead = require('../middleware/validateLead')
+
 
 /**
  * @swagger
@@ -225,7 +227,7 @@ router.get('/:id/leads', (req, res, next) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/:id/leads', (req, res, next) => {
+router.post('/:id/leads', validateLead, (req, res, next) => {
   try {
     const lead = landingService.createLead(req.params.id, req.body)
     res.status(201).json(lead)
